@@ -1,6 +1,8 @@
 import time
 
 import glfw
+from OpenGL.GL import glLoadIdentity, glScalef, glTranslatef, glOrtho, glPushMatrix, \
+    glMatrixMode, GL_PROJECTION, GL_MODELVIEW, glPopMatrix, glViewport
 
 
 class Window:
@@ -11,7 +13,7 @@ class Window:
 
         After the successful creation of a window the loop has
         to be manually started with *start_event_loop*.
-        To draw, set the update handler with a *fn(window)* callback.
+        To draw, use *set_update_handler* with a *fn(window)* callback.
 
         Parameters
         ----------
@@ -38,6 +40,8 @@ class Window:
         self.fps = 0
         self._handler = None
         self._title = title
+        self.width = width
+        self.height = height
 
         resizable = False
         if 'resizable' in kwargs:
@@ -63,6 +67,11 @@ class Window:
         glfw.swap_interval(1 if vsync else 0)
 
     def start_event_loop(self):
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(0, self.width, self.height, 0, -1, 1)
+        glViewport(0, 0, self.width, self.height)
+        glMatrixMode(GL_MODELVIEW)
         self._loop()
 
     def get_key(self, glfw_key):
@@ -84,6 +93,8 @@ class Window:
         frame_count = 0
         now = time.time()
         while not glfw.window_should_close(self._window):
+            glLoadIdentity()
+
             # draw call
             if self._handler is not None:
                 self._handler(self)
@@ -98,8 +109,8 @@ class Window:
             self.fps = frame_count / elapsed_time
 
             if elapsed_time >= 1:
-                glfw.set_window_title(self._window,
-                                      f'{self.title} @ {self.fps:.0f} FPS')
+                title = f'{self.title} @ {self.fps:.0f} FPS'
+                glfw.set_window_title(self._window, title)
                 now = time.time()
                 frame_count = 0
 
