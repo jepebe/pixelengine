@@ -1,18 +1,20 @@
 import freetype as ft
 import numpy
+from numpy.core.multiarray import ndarray
 
 
 # This code is derived from the example in the *freetype-py* repository
 # FreeType high-level python API - Copyright 2011-2015 Nicolas P. Rougier
-from numpy.core.multiarray import ndarray
 
 
 class Font:
     def __init__(self, filename, size):
-        self._font_data = self._make_font(filename, size)
+        self._font_data: ndarray = None
+        self.glyph_width = None
+        self.glyph_height = None
+        self._make_font(filename, size)
 
-    @staticmethod
-    def _make_font(filename, size) -> ndarray:
+    def _make_font(self, filename, size):
         face = ft.Face(filename)
         face.set_char_size(size * 64)
         if not face.is_fixed_width:
@@ -39,4 +41,6 @@ class Font:
                 y = j * height + ascender - face.glyph.bitmap_top
                 z[y:y + bitmap.rows, x:x + bitmap.width].flat = bitmap.buffer
 
-        return z
+        self._font_data = z
+        self.glyph_width = width
+        self.glyph_height = height

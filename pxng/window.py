@@ -1,8 +1,12 @@
+import os
 import time
+from pathlib import Path
 
 import glfw
-from OpenGL.GL import glLoadIdentity, glScalef, glTranslatef, glOrtho, glPushMatrix, \
-    glMatrixMode, GL_PROJECTION, GL_MODELVIEW, glPopMatrix, glViewport
+from OpenGL.GL import glLoadIdentity, glScalef, glTranslatef, glOrtho, glPushMatrix
+from OpenGL.GL import glMatrixMode, GL_PROJECTION, GL_MODELVIEW, glPopMatrix, glViewport
+
+import pxng
 
 
 class Window:
@@ -66,6 +70,11 @@ class Window:
         glfw.make_context_current(self._window)
         glfw.swap_interval(1 if vsync else 0)
 
+        font_path = Path(__file__).parent / 'resources/fonts/C64_Pro_Mono-STYLE.ttf'
+        self._font = pxng.Font(str(font_path), 8)
+        w = self._font._font_data.shape
+        self._font_sprite = pxng.Sprite(self._font._font_data)
+
     def start_event_loop(self):
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -94,7 +103,7 @@ class Window:
         now = time.time()
         while not glfw.window_should_close(self._window):
             glLoadIdentity()
-
+            glScalef(self.x_scale, self.y_scale, 1)
             # draw call
             if self._handler is not None:
                 self._handler(self)
@@ -121,3 +130,29 @@ class Window:
 
     def set_update_handler(self, handler):
         self._handler = handler
+
+    def draw_sprite(self, x, y, sprite, scale=1):
+        glPushMatrix()
+        glTranslatef(x, y, 0)
+        glScalef(scale, scale, 1)
+        sprite.draw()
+        glPopMatrix()
+
+    def draw_string(self, x, y, text):
+        glPushMatrix()
+        sw = self._font.glyph_width
+        sh = self._font.glyph_height
+        glTranslatef(x, y, 0)
+        for c in text:
+            i = ord(c)
+            sx = i % 16
+            sy = i // 16 - 2
+            self._font_sprite.draw_partial(sx * sw, sy * sh, sw, sh)
+            glTranslatef(sw, 0, 0)
+        glPopMatrix()
+
+    def draw_partial_sprite(self, x, y, sprite, sx, sy, sw, sh):
+        glPushMatrix()
+        glTranslatef(x, y, 0)
+        sprite.draw_partial(sx, sy, sw, sh)
+        glPopMatrix()
