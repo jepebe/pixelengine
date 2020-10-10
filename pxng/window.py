@@ -1,12 +1,9 @@
-import os
 import time
 from pathlib import Path
 
 import glfw
-from OpenGL.GL import glLoadIdentity, glScalef, glTranslatef, glOrtho, glPushMatrix
-from OpenGL.GL import glMatrixMode, GL_PROJECTION, GL_MODELVIEW, glPopMatrix, glViewport
-
 import pxng
+from pxng.opengl import *
 
 
 class Window:
@@ -46,6 +43,7 @@ class Window:
         self._title = title
         self.width = width
         self.height = height
+        self.context = {}
 
         resizable = False
         if 'resizable' in kwargs:
@@ -71,9 +69,8 @@ class Window:
         glfw.swap_interval(1 if vsync else 0)
 
         font_path = Path(__file__).parent / 'resources/fonts/C64_Pro_Mono-STYLE.ttf'
-        self._font = pxng.Font(str(font_path), 8)
-        w = self._font._font_data.shape
-        self._font_sprite = pxng.Sprite(self._font._font_data)
+        # font_path = Path(__file__).parent / 'resources/fonts/JetBrainsMono-Bold.ttf'
+        self._text_renderer = pxng.TextRenderer(pxng.Font(str(font_path), 8))
 
     def start_event_loop(self):
         glMatrixMode(GL_PROJECTION)
@@ -138,21 +135,12 @@ class Window:
         sprite.draw()
         glPopMatrix()
 
-    def draw_string(self, x, y, text):
-        glPushMatrix()
-        sw = self._font.glyph_width
-        sh = self._font.glyph_height
-        glTranslatef(x, y, 0)
-        for c in text:
-            i = ord(c)
-            sx = i % 16
-            sy = i // 16 - 2
-            self._font_sprite.draw_partial(sx * sw, sy * sh, sw, sh)
-            glTranslatef(sw, 0, 0)
-        glPopMatrix()
+    def draw_string(self, x, y, text, scale=1.0):
+        self._text_renderer.draw_string(x, y, text, scale)
 
-    def draw_partial_sprite(self, x, y, sprite, sx, sy, sw, sh):
+    def draw_partial_sprite(self, x, y, sprite, sx, sy, sw, sh, scale=1.0):
         glPushMatrix()
         glTranslatef(x, y, 0)
+        glScalef(scale, scale, 1)
         sprite.draw_partial(sx, sy, sw, sh)
         glPopMatrix()

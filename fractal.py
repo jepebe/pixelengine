@@ -3,12 +3,13 @@ from collections import namedtuple
 
 import glfw
 import numpy as np
-from OpenGL.GL import *
 
 import pxng
+from pxng.opengl import *
 
 
 Range2D = namedtuple('Range2D', ['x1', 'y1', 'x2', 'y2'])
+
 
 def update(window: pxng.Window):
     if window.is_key_pressed(glfw.KEY_SPACE):
@@ -21,20 +22,20 @@ def update(window: pxng.Window):
         window.context['zoom'] *= 0.9
         zoom = window.context['zoom']
         sprite = window.context['sprite']
-        render_fractal(sprite, window.width // 2, window.height // 2, zoom)
+        render_fractal(sprite, window.width, window.height, zoom)
 
     if window.is_key_pressed(glfw.KEY_X):
         window.context['zoom'] *= 1.1
         zoom = window.context['zoom']
         sprite = window.context['sprite']
-        render_fractal(sprite, window.width // 2, window.height // 2, zoom)
+        render_fractal(sprite, window.width, window.height, zoom)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glClearColor(0.0, 0.0, 0.0, 1)
 
     glPushMatrix()
     sprite = window.context['sprite']
-    window.draw_sprite(0, 0, sprite, scale=2)
+    window.draw_sprite(0, 0, sprite, scale=1)
     count = window.context['count']
 
     window.context['count'] += 1
@@ -79,9 +80,9 @@ def render_fractal(sprite, w, h, zoom=1.0):
 if __name__ == "__main__":
     w = 512
     h = 512
-    data = np.zeros((h // 2, w // 2, 3), dtype=np.uint8)
+    data = np.zeros((h, w, 3), dtype=np.uint8)
     sprite = pxng.Sprite(data)
-    render_fractal(sprite, w // 2, h // 2)
+    render_fractal(sprite, w, h)
     window = pxng.Window(w, h, 'PixelEngine', scale=1)
     window.context = {'data': data, 'sprite': sprite, 'count': 0, 'zoom': 1}
     window.set_update_handler(update)

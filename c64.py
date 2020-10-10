@@ -1,7 +1,7 @@
 import glfw
-from OpenGL.GL import *
 
 import pxng
+from pxng.opengl import *
 
 
 def floatify(r, g, b):
@@ -47,7 +47,7 @@ def update(window: pxng.Window):
 
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
     glColor(*light_blue, 1)
-    glTranslatef(0, 18, 0)
+    glTranslatef(0, 10, 0)
     window.draw_string(0, 0, '    **** COMMODORE 64 BASIC V2 ****')
     glTranslatef(0, 18, 0)
     window.draw_string(0, 0, ' 64K RAM SYSTEM  38911 BASIC BYTES FREE')

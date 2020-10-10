@@ -1,8 +1,8 @@
 import glfw
 import imageio
-from OpenGL.GL import *
 
 import pxng
+from pxng.opengl import *
 
 
 def update(window: pxng.Window):
@@ -13,39 +13,52 @@ def update(window: pxng.Window):
         window.close_window()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glClearColor(0.0, 0.0, 0.0, 1)
+    glClearColor(0.0, 0.0, 0.4, 1)
 
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
     # glEnable(GL_DEPTH_TEST)
 
     glColor(1, 1, 0, 1)
-    window.draw_string(160, 160, 'Hello, world!')
+    value = 0x00
+    for row in range(0x10):
+        addr = 0xC000 + row * 0x10
+        row_txt = f'${addr:04X}'
+        for col in range(0x00, 0x10):
+            row_txt += f' {value & 0xFF:02X}'
+            value += 1
+        window.draw_string(0, row * 10, row_txt, scale=0.5)
 
-    x = window.frame % 8
-    y = window.frame // 8
-    window.draw_partial_sprite(150, 150, sprite, x * 150, y * 150, 150, 150)
-    window.frame += 1 if window.frame % 50 == 0 else 0
-    if window.frame == 32:
-        window.frame = 0
+    for row in range(8):
+        row_txt = f'{row:02X}:'
+        for col in range(0x00, 0x10):
+            row_txt += f' {chr(row * 16 + col)}'
+        window.draw_string(0, 200 + row * 10, row_txt, scale=0.5)
 
+    window.draw_sprite(250, 150, window._text_renderer._font_sprite, 0.5)
 
-    # glColor(0, 1, 0, 1)
-    # glBegin(GL_QUADS)
-    # glVertex(0, window.height)
-    # glVertex(0, 0)
-    # glVertex(window.width, 0)
-    # glVertex(window.width, window.height)
-    # glVertex(0, 1)
-    # glVertex(0, 0)
-    # glVertex(1, 0)
-    # glVertex(1, 1)
-    # glEnd()
+    glColor(1, 1, 1, 1)
+    anim_frame = window.context['anim_frame']
+    x = anim_frame % 10
+    y = anim_frame // 10
+    y = 5
+    w = 96
+    h = 103
+    window.draw_partial_sprite(220, 0, sprite, x * w, y + y * h, w, h)
+    window.context['anim_frame'] += 1 if window.context['frame'] % 10 == 0 else 0
+    #window.context['anim_frame'] += 1
+    if window.context['anim_frame'] == 10:
+        window.context['anim_frame'] = 0
+
+    window.context['frame'] += 1
 
 
 if __name__ == "__main__":
-    img = imageio.imread('sprites/explosion.png')
+    img = imageio.imread('sprites/link.png')
     sprite = pxng.Sprite(img)
     window = pxng.Window(640, 480, 'PixelEngine', scale=2)
-    window.frame = 0
+    window.context['anim_frame'] = 0
+    window.context['frame'] = 0
+    window.context['sprite'] = sprite
+
     window.set_update_handler(update)
     window.start_event_loop()
