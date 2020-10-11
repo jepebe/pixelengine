@@ -1,14 +1,10 @@
 import math
-from collections import namedtuple
-
 import glfw
 import numpy as np
 
 import pxng
+from fractal import Range2D, py_create_fractal
 from pxng.opengl import *
-
-
-Range2D = namedtuple('Range2D', ['x1', 'y1', 'x2', 'y2'])
 
 
 def update(window: pxng.Window):
@@ -45,26 +41,9 @@ def update(window: pxng.Window):
     window.draw_string(0, 0, 'Fractal Renderer')
 
 
-def create_fractal(pix: Range2D, frac: Range2D, iterations=256):
-    x_scale = (frac.x2 - frac.x1) / (pix.x2 - pix.x1)
-    y_scale = (frac.y2 - frac.y1) / (pix.y2 - pix.y1)
-    fractal = []
-    for y in range(pix.y1, pix.y2):
-        for x in range(pix.x1, pix.x2):
-            c = complex(x * x_scale * frac.x1, y * y_scale + frac.y1)
-            z = complex(0, 0)
-
-            n = 0
-            while abs(z) < 2 and n < iterations:
-                z = (z * z) + c
-                n += 1
-            fractal.append(n)
-    return fractal
-
-
 def render_fractal(sprite, w, h, zoom=1.0):
     frac = Range2D(-1 * zoom, -1 * zoom, 1 * zoom, 1 * zoom)
-    fractal = create_fractal(Range2D(0, 0, w, h), frac)
+    fractal = py_create_fractal(Range2D(0, 0, w, h), frac)
     for y in range(h):
         for x in range(w):
             i = fractal[y * w + x]
