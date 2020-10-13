@@ -4,7 +4,7 @@
 drawing shapes, writing text and interacting with input devices. 
 It is inspired by the *olcPixelGameEngine* by OneLoneCoder.
 
-##What it can do:
+## What it can do:
 - Create a window for drawing. The window supports rendering at a lower 
   virtual resolution.
 - Render text. The built in font is C64 styled.
@@ -17,7 +17,7 @@ sprite can be updated in the live rendering.
 - Poll the keyboard for events.
 
 
-##How to Install
+## How to Install
 The aim is to make this `pip install pxng` but we are not there yet.
 
 
@@ -42,7 +42,7 @@ The green field of hexadecimal numbers scrolls by as fast as it can.
 
 
 
-##Copyrights
+## Copyrights
 
 - C64 font - The font is included as part of the repository and the license
   is available here: https://style64.org/c64-truetype/license
