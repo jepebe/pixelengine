@@ -34,13 +34,14 @@ class TextRenderer:
         glPopMatrix()
         self._initialized = True
 
-    def draw_string(self, x, y, text, scale=1.0):
+    def draw_string(self, x, y, text, scale=1.0, angle=0):
         self._font_sprite.activate()
 
         glPushMatrix()
         sh = self._font.glyph_height
-        glScalef(scale, scale, 1)
         glTranslatef(x, y, 0)
+        glScalef(scale, scale, 1)
+        glRotate(angle, 0, 0, 1)
         glTranslate(0, sh, 0)
         self._display_list.draw([ord(c) for c in text])
         glPopMatrix()

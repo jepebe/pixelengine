@@ -1,5 +1,6 @@
 from typing import Tuple
 
+import imageio
 from numpy.core.multiarray import ndarray
 from pxng.opengl import *
 
@@ -22,6 +23,14 @@ class Sprite:
             self._format = GL_RGB
         elif self._components == 1:
             self._format = GL_ALPHA
+
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def height(self):
+        return self._height
 
     def set_pixel(self, x, y, color: Tuple[int, int, int]):
         self._data[y, x] = color
@@ -65,6 +74,7 @@ class Sprite:
 
         glEnable(GL_TEXTURE_RECTANGLE)
         glBindTexture(GL_TEXTURE_RECTANGLE, self._texid)
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
         glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 
@@ -85,6 +95,9 @@ class Sprite:
         glPopMatrix()
 
     def draw(self):
+        """
+        Draw the sprite at the current position.
+        """
         self._pre_draw()
         glTranslate(0, self._height, 0)
 
@@ -100,13 +113,18 @@ class Sprite:
     def draw_partial(self, x, y, width, height):
         """
         Draw a partial sprite using pixel coordinates for the partial image data.
+        The coordinates represent a sub region in the sprite.
 
         Parameters
         ----------
         x: int
+            x coordinate in pixel space
         y: int
+            y coordinate in pixel space
         width: int
+            width in number of pixels
         height: int
+            height in number of pixels
         """
         self._pre_draw()
         glTranslate(0, height, 0)  # anchor is upper left
@@ -119,3 +137,8 @@ class Sprite:
         glEnd()
 
         self._post_draw()
+
+    @classmethod
+    def create_from_image(cls, path):
+        img_data = imageio.imread(path)
+        return Sprite(img_data)

@@ -2,3 +2,4 @@ glfw~=2.0.0
 pyopengl~=3.1.0
 freetype-py~=2.2.0
 numpy~=1.19.2
+imageio~=2.9.0

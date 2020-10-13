@@ -3,6 +3,7 @@ from pathlib import Path
 
 import glfw
 import pxng
+from pxng.colors import WHITE
 from pxng.opengl import *
 
 
@@ -26,15 +27,19 @@ class Window:
             Title to show in title bar.
         **kwargs
             vsync: bool
-                Turn off or on vsync, default is false.
+                Turn off or on vsync. default=False
             resizable: bool
-                Indicate if the windows should be resizable.
+                Indicate if the windows should be resizable. default=False
             x_scale: float
-                Scaling in 'x' direction.
+                Scaling in 'x' direction. default=1
             y_scale: float
-                Scaling in 'y' direction.
+                Scaling in 'y' direction. default=1
             scale: float
                 Sets 'x_scale' and 'y_scale' to the same value.
+            hdpi: bool
+                Use HDPI if available. Default=False
+            color: tuple of float
+                Set the background color. RGB or RGBA supported
         """
         if not glfw.init():
             raise UserWarning('Unable to initialize glfw')
@@ -45,10 +50,15 @@ class Window:
         self.height = height
         self.context = {}
 
-        resizable = False
+        resizable = glfw.FALSE
         if 'resizable' in kwargs:
             resizable = glfw.TRUE if kwargs['resizable'] else glfw.FALSE
         glfw.window_hint(glfw.RESIZABLE, resizable)
+
+        hdpi = glfw.FALSE
+        if 'hdpi' in kwargs:
+            hdpi = glfw.TRUE if kwargs['hdpi'] else glfw.FALSE
+        glfw.window_hint(glfw.COCOA_RETINA_FRAMEBUFFER, hdpi)
 
         vsync = False
         if 'vsync' in kwargs:
@@ -61,6 +71,10 @@ class Window:
 
         self._window = glfw.create_window(width, height, title, None, None)
 
+        self._color = (0, 0, 0, 1)
+        if 'color' in kwargs:
+            self._color = kwargs['color']
+
         if not self._window:
             glfw.terminate()
             raise UserWarning('Unable to create window')
@@ -71,6 +85,7 @@ class Window:
         font_path = Path(__file__).parent / 'resources/fonts/C64_Pro_Mono-STYLE.ttf'
         # font_path = Path(__file__).parent / 'resources/fonts/JetBrainsMono-Bold.ttf'
         self._text_renderer = pxng.TextRenderer(pxng.Font(str(font_path), 8))
+        self._elapsed_time = 0
 
     def start_event_loop(self):
         glMatrixMode(GL_PROJECTION)
@@ -95,12 +110,24 @@ class Window:
         self._title = title
         glfw.set_window_title(self._window, self._title)
 
+    @property
+    def elapsed_time(self) -> float:
+        return self._elapsed_time
+
     def _loop(self):
         frame_count = 0
-        now = time.time()
+        fps_now = time.time()
+        elapsed_now = time.time()
         while not glfw.window_should_close(self._window):
             glLoadIdentity()
             glScalef(self.x_scale, self.y_scale, 1)
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+            glClearColor(*self._color)
+
+            now = time.time()
+            self._elapsed_time = (now - elapsed_now)
+            elapsed_now = now
             # draw call
             if self._handler is not None:
                 self._handler(self)
@@ -111,13 +138,13 @@ class Window:
             # Poll for and process events
             glfw.poll_events()
             frame_count += 1
-            elapsed_time = (time.time() - now)
-            self.fps = frame_count / elapsed_time
+            fps_time_delta = (time.time() - fps_now)
+            self.fps = frame_count / fps_time_delta
 
-            if elapsed_time >= 1:
+            if fps_time_delta >= 1:
                 title = f'{self.title} @ {self.fps:.0f} FPS'
                 glfw.set_window_title(self._window, title)
-                now = time.time()
+                fps_now = time.time()
                 frame_count = 0
 
         glfw.terminate()
@@ -128,19 +155,51 @@ class Window:
     def set_update_handler(self, handler):
         self._handler = handler
 
-    def draw_sprite(self, x, y, sprite, scale=1):
+    def draw_sprite(self, x, y, sprite, scale=1.0, tint=WHITE):
+        glColor(tint)
         glPushMatrix()
         glTranslatef(x, y, 0)
         glScalef(scale, scale, 1)
         sprite.draw()
         glPopMatrix()
 
-    def draw_string(self, x, y, text, scale=1.0):
-        self._text_renderer.draw_string(x, y, text, scale)
+    def draw_string(self, x, y, text, scale=1.0, tint=WHITE, angle=0):
+        glColor(*tint)
+        self._text_renderer.draw_string(x, y, text, scale, angle)
 
-    def draw_partial_sprite(self, x, y, sprite, sx, sy, sw, sh, scale=1.0):
+    def draw_partial_sprite(self, x, y, sprite, sx, sy, sw, sh, scale=1.0, tint=WHITE):
+        glColor(*tint)
         glPushMatrix()
         glTranslatef(x, y, 0)
         glScalef(scale, scale, 1)
         sprite.draw_partial(sx, sy, sw, sh)
+        glPopMatrix()
+
+    def draw_grid(self, size=10, tint=WHITE, factor=4, pattern=0xAAAA):
+        glColor(*tint)
+        glLineStipple(factor, pattern)
+        glEnable(GL_LINE_STIPPLE)
+        x = size
+        y = size
+        glBegin(GL_LINES)
+        while x < self.width:
+            glVertex(x, 0)
+            glVertex(x, self.height)
+            x += size
+        while y < self.height:
+            glVertex(0, y)
+            glVertex(self.width, y)
+            y += size
+        glEnd()
+
+    def fill_rect(self, x, y, w, h, tint=WHITE):
+        glPushMatrix()
+        glColor(*tint)
+        glTranslatef(x, y, 0)
+        glBegin(GL_QUADS)
+        glVertex(0, h)
+        glVertex(0, 0)
+        glVertex(w, 0)
+        glVertex(w, h)
+        glEnd()
         glPopMatrix()
