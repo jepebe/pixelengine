@@ -1,0 +1,14 @@
+Create distribution:
+- python setup.py sdist bdist_wheel
+
+Upload package:
+- twine upload dist/*
+
+
+Simplify upload with a file $HOME/.pypirc containing:
+
+[pypi]
+username = __token__
+password = pypi-token
+
+The token is generated on the PYPI account page.
