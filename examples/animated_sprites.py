@@ -14,7 +14,7 @@ def update(window: pxng.Window):
     window.draw_grid(size=5, tint=(0.125, 0.125, 0.125), factor=1)
     window.draw_grid(size=20, tint=DARK_GREY)
 
-    window.draw_string(5, 5, "Animated Sprites", tint=LIGHT_GREEN)
+    window.draw_text(5, 5, "Animated Sprites", tint=LIGHT_GREEN)
 
     flame_sprite = window.context['flame_sprite']
     flame_sprite.advance_time(window.elapsed_time)

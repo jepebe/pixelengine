@@ -86,6 +86,7 @@ class Window:
         # font_path = Path(__file__).parent / 'resources/fonts/JetBrainsMono-Bold.ttf'
         self._text_renderer = pxng.TextRenderer(pxng.Font(str(font_path), 8))
         self._elapsed_time = 0
+        self._current_tint = WHITE
 
     def start_event_loop(self):
         glMatrixMode(GL_PROJECTION)
@@ -155,28 +156,31 @@ class Window:
     def set_update_handler(self, handler):
         self._handler = handler
 
-    def draw_sprite(self, x, y, sprite, scale=1.0, tint=WHITE):
-        glColor(tint)
+    def set_tint(self, color):
+        self._current_tint = color
+
+    def draw_sprite(self, x, y, sprite, scale=1.0, tint=None):
+        self._set_color(tint)
         glPushMatrix()
         glTranslatef(x, y, 0)
         glScalef(scale, scale, 1)
         sprite.draw()
         glPopMatrix()
 
-    def draw_string(self, x, y, text, scale=1.0, tint=WHITE, angle=0):
-        glColor(*tint)
+    def draw_text(self, x, y, text, scale=1.0, tint=None, angle=0):
+        self._set_color(tint)
         self._text_renderer.draw_string(x, y, text, scale, angle)
 
-    def draw_partial_sprite(self, x, y, sprite, sx, sy, sw, sh, scale=1.0, tint=WHITE):
-        glColor(*tint)
+    def draw_partial_sprite(self, x, y, sprite, sx, sy, sw, sh, scale=1.0, tint=None):
+        self._set_color(tint)
         glPushMatrix()
         glTranslatef(x, y, 0)
         glScalef(scale, scale, 1)
         sprite.draw_partial(sx, sy, sw, sh)
         glPopMatrix()
 
-    def draw_grid(self, size=10, tint=WHITE, factor=4, pattern=0xAAAA):
-        glColor(*tint)
+    def draw_grid(self, size=10, tint=None, factor=4, pattern=0xAAAA):
+        self._set_color(tint)
         glLineStipple(factor, pattern)
         glEnable(GL_LINE_STIPPLE)
         x = size
@@ -192,9 +196,9 @@ class Window:
             y += size
         glEnd()
 
-    def fill_rect(self, x, y, w, h, tint=WHITE):
+    def fill_rect(self, x, y, w, h, tint=None):
         glPushMatrix()
-        glColor(*tint)
+        self._set_color(tint)
         glTranslatef(x, y, 0)
         glBegin(GL_QUADS)
         glVertex(0, h)
@@ -203,3 +207,9 @@ class Window:
         glVertex(w, h)
         glEnd()
         glPopMatrix()
+
+    def _set_color(self, tint):
+        if tint is None:
+            tint = self._current_tint
+        glColor(*tint)
+

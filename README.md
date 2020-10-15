@@ -37,10 +37,10 @@ This will create a 640x480 window with a scale of 2. This scaling factor results
 
 ```python
 def update(window: pxng.Window):
-    window.draw_string(100, 100, "Hello, world!", tint=LIGHT_GREEN)
+    window.draw_text(100, 100, "Hello, world!", tint=LIGHT_GREEN)
 ```
 
-The `update` function has a single argument that is provided by the framework and it is `window`. This is the context that you will use to draw and handle interaction. In this case we use the `draw_string` function to write our "Hello, world!" message at `(x, y) = (100, 100)` in a light green color. 
+The `update` function has a single argument that is provided by the framework and it is `window`. This is the context that you will use to draw and handle interaction. In this case we use the `draw_text` function to write our "Hello, world!" message at `(x, y) = (100, 100)` in a light green color. 
 
 Running this should result in the following screenshot:
 

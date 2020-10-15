@@ -16,7 +16,7 @@ def update(window: pxng.Window):
     window.draw_grid(size=5, tint=(0.125, 0.125, 0.125), factor=1)
     window.draw_grid(size=20, tint=DARK_GREY)
 
-    window.draw_string(5, 5, "Palette", tint=LIGHT_GREEN)
+    window.draw_text(5, 5, "Palette", tint=LIGHT_GREEN)
 
     draw_named_palette(window, 10, 20)
 
@@ -38,7 +38,7 @@ def update(window: pxng.Window):
 
 
 def draw_named_palette(window, x, y):
-    window.draw_string(x, y, "Named Colors", tint=AZURE, scale=0.5)
+    window.draw_text(x, y, "Named Colors", tint=AZURE, scale=0.5)
     y += 5
     size = 16
     for color_range in PALETTE:
@@ -66,7 +66,7 @@ def draw_rgb(window, x, y, face, component=0.0):
         w_axis = 'B'
 
     title = f'RGB ({u_axis}{v_axis}) {w_axis}={component:0.02f}'
-    window.draw_string(x, y, title, tint=AZURE, scale=0.5)
+    window.draw_text(x, y, title, tint=AZURE, scale=0.5)
     y += 5
     size = 4
     steps = 15
@@ -84,7 +84,7 @@ def draw_rgb(window, x, y, face, component=0.0):
 
 def draw_hsl(window, x, y, saturation):
     text = f'HSL Colors Saturation={saturation:.2f}'
-    window.draw_string(10, y, text, tint=AZURE, scale=0.5)
+    window.draw_text(10, y, text, tint=AZURE, scale=0.5)
     y += 5
     size = 5
     hue_steps = 35

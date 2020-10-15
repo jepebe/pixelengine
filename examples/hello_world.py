@@ -3,7 +3,7 @@ from pxng.colors import *
 
 
 def update(window: pxng.Window):
-    window.draw_string(100, 100, "Hello, world!", tint=LIGHT_GREEN)
+    window.draw_text(100, 100, "Hello, world!", tint=LIGHT_GREEN)
 
 
 if __name__ == '__main__':
