@@ -81,6 +81,7 @@ class Window:
 
         glfw.make_context_current(self._window)
         glfw.swap_interval(1 if vsync else 0)
+        glfw.set_input_mode(self._window, glfw.STICKY_KEYS, glfw.TRUE)
 
         font_path = Path(__file__).parent / 'resources/fonts/C64_Pro_Mono-STYLE.ttf'
         # font_path = Path(__file__).parent / 'resources/fonts/JetBrainsMono-Bold.ttf'
@@ -101,6 +102,9 @@ class Window:
 
     def is_key_pressed(self, glfw_key):
         return self.get_key(glfw_key) == glfw.PRESS
+
+    def is_key_released(self, glfw_key):
+        return self.get_key(glfw_key) == glfw.RELEASE
 
     @property
     def title(self):
@@ -156,7 +160,12 @@ class Window:
     def set_update_handler(self, handler):
         self._handler = handler
 
-    def set_tint(self, color):
+    @property
+    def tint(self):
+        return self._current_tint
+
+    @tint.setter
+    def tint(self, color):
         self._current_tint = color
 
     def draw_sprite(self, x, y, sprite, scale=1.0, tint=None):
@@ -212,4 +221,3 @@ class Window:
         if tint is None:
             tint = self._current_tint
         glColor(*tint)
-
