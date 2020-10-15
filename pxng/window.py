@@ -3,6 +3,7 @@ from pathlib import Path
 
 import glfw
 import pxng
+import pxng.keys
 from pxng.colors import WHITE
 from pxng.opengl import *
 
@@ -79,15 +80,16 @@ class Window:
             glfw.terminate()
             raise UserWarning('Unable to create window')
 
+        glfw.set_input_mode(self._window, glfw.STICKY_KEYS, glfw.TRUE)
         glfw.make_context_current(self._window)
         glfw.swap_interval(1 if vsync else 0)
-        glfw.set_input_mode(self._window, glfw.STICKY_KEYS, glfw.TRUE)
 
         font_path = Path(__file__).parent / 'resources/fonts/C64_Pro_Mono-STYLE.ttf'
         # font_path = Path(__file__).parent / 'resources/fonts/JetBrainsMono-Bold.ttf'
         self._text_renderer = pxng.TextRenderer(pxng.Font(str(font_path), 8))
         self._elapsed_time = 0
         self._current_tint = WHITE
+        self._key_poller = pxng.keys.KeyPoller()
 
     def start_event_loop(self):
         glMatrixMode(GL_PROJECTION)
@@ -97,14 +99,8 @@ class Window:
         glMatrixMode(GL_MODELVIEW)
         self._loop()
 
-    def get_key(self, glfw_key):
-        return glfw.get_key(self._window, glfw_key)
-
-    def is_key_pressed(self, glfw_key):
-        return self.get_key(glfw_key) == glfw.PRESS
-
-    def is_key_released(self, glfw_key):
-        return self.get_key(glfw_key) == glfw.RELEASE
+    def key_state(self, key) -> pxng.keys.KeyState:
+        return self._key_poller.key_state(key)
 
     @property
     def title(self):
@@ -124,6 +120,7 @@ class Window:
         fps_now = time.time()
         elapsed_now = time.time()
         while not glfw.window_should_close(self._window):
+            self._key_poller.poll_keys(self._window)
             glLoadIdentity()
             glScalef(self.x_scale, self.y_scale, 1)
 

@@ -1,15 +1,16 @@
-import glfw
-
 import pxng
 from pxng.colors import LIGHT_GREEN, DARK_GREY
+from pxng.keys import KEY_SPACE, KEY_Q
 
 
 def update(window: pxng.Window):
-    if window.is_key_pressed(glfw.KEY_SPACE):
+    if window.key_state(KEY_SPACE).pressed:
         window.context['paused'] = not window.context['paused']
 
-    if window.is_key_pressed(glfw.KEY_Q):
+    if window.key_state(KEY_Q).pressed:
         window.close_window()
+
+    paused = window.context['paused']
 
     window.draw_grid(size=5, tint=(0.125, 0.125, 0.125), factor=1)
     window.draw_grid(size=20, tint=DARK_GREY)
@@ -17,20 +18,24 @@ def update(window: pxng.Window):
     window.draw_text(5, 5, "Animated Sprites", tint=LIGHT_GREEN)
 
     flame_sprite = window.context['flame_sprite']
-    flame_sprite.advance_time(window.elapsed_time)
+    if not paused:
+        flame_sprite.advance_time(window.elapsed_time)
     window.draw_sprite(250, 10, flame_sprite, 0.5)
 
     fire_sprite = window.context['fire_sprite']
-    fire_sprite.advance_time(window.elapsed_time)
+    if not paused:
+        fire_sprite.advance_time(window.elapsed_time)
     window.draw_sprite(200, 240 - 128, fire_sprite, 1)
     window.draw_sprite(30, 240 - 64, fire_sprite, 0.5)
 
     fire2_sprite = window.context['fire2_sprite']
-    fire2_sprite.advance_time(window.elapsed_time)
+    if not paused:
+        fire2_sprite.advance_time(window.elapsed_time)
     window.draw_sprite(105, 240 - 128, fire2_sprite, 1)
 
     pale_blue = window.context['pale_blue']
-    pale_blue.advance_time_all(window.elapsed_time)
+    if not paused:
+        pale_blue.advance_time_all(window.elapsed_time)
     pale_blue.set_current_animation('walk_left')
     window.draw_sprite(70, 40, pale_blue, scale=0.5)
     window.draw_sprite(90, 40, pale_blue, scale=1)

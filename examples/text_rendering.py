@@ -1,14 +1,13 @@
-import glfw
-
 import pxng
 from pxng.colors import DARK_GREY, LIGHT_YELLOW, LIGHT_GREEN, LIGHT_BLUE, LIGHT_ORANGE
+from pxng.keys import KEY_SPACE, KEY_Q
 
 
 def update(window: pxng.Window):
-    if window.is_key_pressed(glfw.KEY_SPACE):
+    if window.key_state(KEY_SPACE).pressed:
         window.context['paused'] = not window.context['paused']
 
-    if window.is_key_pressed(glfw.KEY_Q):
+    if window.key_state(KEY_Q).pressed:
         window.close_window()
 
     window.draw_grid(tint=DARK_GREY)
@@ -18,7 +17,7 @@ def update(window: pxng.Window):
     row_count = 0x20  # 32
     column_count = 0x10  # 16
     start_row = 0x00 + frame % (0xFFF - row_count - 1)
-    window.set_tint(LIGHT_GREEN)
+    window.tint = LIGHT_GREEN
     for row in range(row_count):
         addr = start_row * column_count + row * column_count
         row_txt = f'${addr:04X}'

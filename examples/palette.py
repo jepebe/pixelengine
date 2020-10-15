@@ -1,16 +1,15 @@
 import colorsys
 
-import glfw
-
 import pxng
 from pxng.colors import PALETTE, DARK_GREY, AZURE, LIGHT_GREEN
+from pxng.keys import KEY_SPACE, KEY_Q
 
 
 def update(window: pxng.Window):
-    if window.is_key_pressed(glfw.KEY_SPACE):
+    if window.key_state(KEY_SPACE).pressed:
         window.context['paused'] = not window.context['paused']
 
-    if window.is_key_pressed(glfw.KEY_Q):
+    if window.key_state(KEY_Q).pressed:
         window.close_window()
 
     window.draw_grid(size=5, tint=(0.125, 0.125, 0.125), factor=1)

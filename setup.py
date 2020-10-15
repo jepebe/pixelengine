@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pxng",
-    version="0.0.5",
+    version="0.0.6",
     author="Jean-Paul Balabanian",
     author_email="jepebe@prador.net",
     description="A library for fiddling with pixels",
