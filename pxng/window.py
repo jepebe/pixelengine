@@ -84,9 +84,7 @@ class Window:
         glfw.make_context_current(self._window)
         glfw.swap_interval(1 if vsync else 0)
 
-        font_path = Path(__file__).parent / 'resources/fonts/C64_Pro_Mono-STYLE.ttf'
-        # font_path = Path(__file__).parent / 'resources/fonts/JetBrainsMono-Bold.ttf'
-        self._text_renderer = pxng.TextRenderer(pxng.Font(str(font_path), 8))
+        self._text_renderer = pxng.TextRenderer(self.create_default_font())
         self._elapsed_time = 0
         self._current_tint = WHITE
         self._key_poller = pxng.keys.KeyPoller()
