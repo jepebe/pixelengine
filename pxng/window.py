@@ -4,6 +4,7 @@ from pathlib import Path
 import glfw
 import pxng
 import pxng.keys
+import pxng.mouse
 from pxng.colors import WHITE
 from pxng.opengl import *
 
@@ -88,6 +89,11 @@ class Window:
         self._elapsed_time = 0
         self._current_tint = WHITE
         self._key_poller = pxng.keys.KeyPoller()
+        self._mouse_poller = pxng.mouse.Mouse(self._window)
+
+    def create_default_font(self) -> pxng.Font:
+        font_path = Path(__file__).parent / 'resources/fonts/C64_Pro_Mono-STYLE.ttf'
+        return pxng.Font(str(font_path), 8)
 
     def start_event_loop(self):
         glMatrixMode(GL_PROJECTION)
@@ -99,6 +105,17 @@ class Window:
 
     def key_state(self, key) -> pxng.keys.KeyState:
         return self._key_poller.key_state(key)
+
+    @property
+    def mouse(self) -> pxng.mouse.Mouse:
+        """
+        Returns the mouse state.
+
+        Returns
+        -------
+        pxng.mouse.Mouse
+        """
+        return self._mouse_poller
 
     @property
     def title(self):
@@ -119,6 +136,8 @@ class Window:
         elapsed_now = time.time()
         while not glfw.window_should_close(self._window):
             self._key_poller.poll_keys(self._window)
+            self._mouse_poller._poll_mouse(self._window)
+
             glLoadIdentity()
             glScalef(self.x_scale, self.y_scale, 1)
 
@@ -157,10 +176,24 @@ class Window:
 
     @property
     def tint(self):
+        """
+        Returns the current default tint.
+
+        Returns
+        -------
+        tuple of float
+        """
         return self._current_tint
 
     @tint.setter
     def tint(self, color):
+        """
+        Set the default tint for subsequent drawing calls. Color should be RGB or RGBA.
+
+        Parameters
+        ----------
+        color : tuple of float
+        """
         self._current_tint = color
 
     def draw_sprite(self, x, y, sprite, scale=1.0, tint=None):

@@ -54,11 +54,11 @@ In the examples folder there are three applications that show how the library is
 
 ![Screenshot of palette.py](https://github.com/jepebe/pixelengine/blob/master/images/palette.png?raw=true)
 
-2. Animated Sprites - Shows some of the possibilities of rendering sprite sheets. All of the visible sprites in the screenshot are animated by  sub indexing the sprite sheet in a 8x8 grid.
+2. Animated Sprites - Shows some of the possibilities of rendering sprite sheets. All of the visible sprites in the screenshot are animated by  sub indexing the sprite sheet in a 8x8 grid. Left click and drag to move one of the sprites (the largest running character) around.
 
 ![Screenshot of animated_sprites.py](https://github.com/jepebe/pixelengine/blob/master/images/animated_sprites.png?raw=true)
 
-3. Text Rendering - This example shows animated rendering of text. The green field of hexadecimal numbers scrolls by as fast as it can.
+3. Text Rendering - This example shows animated rendering of text. The green field of hexadecimal numbers scrolls by as fast as it can. Press __space__ to stop the animation. Use the __up__ and __down__ arrow keys, __page up__ and __page down__ or __home__ and __end__ to navigate in the scrolling text. Mouse scrolling is also supported.
 
 ![Screenshot of text_rendering.py](https://github.com/jepebe/pixelengine/blob/master/images/text_rendering.png?raw=true)
 

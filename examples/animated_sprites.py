@@ -4,11 +4,7 @@ from pxng.keys import KEY_SPACE, KEY_Q
 
 
 def update(window: pxng.Window):
-    if window.key_state(KEY_SPACE).pressed:
-        window.context['paused'] = not window.context['paused']
-
-    if window.key_state(KEY_Q).pressed:
-        window.close_window()
+    handle_input(window)
 
     paused = window.context['paused']
 
@@ -42,8 +38,9 @@ def update(window: pxng.Window):
     window.draw_sprite(120, 40, pale_blue, scale=2)
     window.draw_sprite(170, 40, pale_blue, scale=3)
 
+    x, y = window.context['big_pos']
     pale_blue.set_current_animation('run_right')
-    window.draw_sprite(0-40, 40, pale_blue, scale=4)
+    window.draw_sprite(0-x, 40 + y, pale_blue, scale=4)
 
     pale_blue.set_current_animation('shoot_right')
     window.draw_sprite(120, 200, pale_blue)
@@ -59,6 +56,20 @@ def update(window: pxng.Window):
 
     if not window.context['paused']:
         window.context['frame'] += 1
+
+
+def handle_input(window: pxng.Window):
+    if window.key_state(KEY_SPACE).pressed:
+        window.context['paused'] = not window.context['paused']
+
+    if window.key_state(KEY_Q).pressed:
+        window.close_window()
+
+    if window.mouse.hover and window.mouse.button_left.held:
+        x, y = window.context['big_pos']
+        x += window.mouse.dx / window.x_scale
+        y -= window.mouse.dy / window.y_scale
+        window.context['big_pos'] = (x, y)
 
 
 if __name__ == "__main__":
@@ -89,6 +100,7 @@ if __name__ == "__main__":
     window.context['fire_sprite'] = fire_sprite
     window.context['fire2_sprite'] = fire2_sprite
     window.context['pale_blue'] = pale_blue
+    window.context['big_pos'] = (0, 0)
 
     window.set_update_handler(update)
     window.start_event_loop()
