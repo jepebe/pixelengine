@@ -150,7 +150,7 @@ class KeyState:
     held: bool = False
 
     def __str__(self):
-        return f'{self.pressed = } {self.released = } {self.held = }'
+        return f'self.pressed={self.pressed} self.released={self.released} self.held={self.held}'
 
 
 class KeyPoller:
