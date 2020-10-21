@@ -24,8 +24,13 @@ setuptools.setup(
         'pyopengl>=3.1.0',
         'freetype-py>=2.2.0',
         'numpy>=1.19.0',
-        'imageio>=2.9.0'
+        'imageio>=2.9.0',
     ],
+    extras_require={
+        ':python_version < "3.7"': [
+            'dataclasses',
+        ],
+    },
     package_data={'pxng': ['resources/fonts/C64_Pro_Mono-STYLE.ttf']},
     python_requires='>=3.6',
 )
