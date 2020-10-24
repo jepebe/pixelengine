@@ -2,7 +2,7 @@ import glm
 from OpenGL.GL import (GL_ARRAY_BUFFER, glGenBuffers, glBindBuffer, glBufferData,
                        GL_DYNAMIC_DRAW, glEnableVertexAttribArray, GL_UNSIGNED_INT,
                        GL_UNSIGNED_SHORT, GL_UNSIGNED_BYTE, GL_FLOAT,
-                       glVertexAttribPointer, GL_ELEMENT_ARRAY_BUFFER)
+                       glVertexAttribPointer, GL_ELEMENT_ARRAY_BUFFER, GL_DOUBLE)
 
 
 class BufferObject:
@@ -70,6 +70,8 @@ class BufferObject:
 
                 if dtype == 'float32':
                     gl_type = GL_FLOAT
+                elif dtype == 'float64':
+                    gl_type = GL_DOUBLE
                 elif dtype == 'uint8':
                     gl_type = GL_UNSIGNED_BYTE
                 elif dtype == 'uint16':
