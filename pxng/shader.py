@@ -114,6 +114,10 @@ class ShaderProgram:
             def fn(loc, value):
                 gl.glUniformMatrix4fv(loc, 1, False, glm.value_ptr(value))
             return fn
+        elif data_type == glm.dvec4:
+            def fn(loc, value):
+                gl.glUniform4dv(loc, 1, glm.value_ptr(value))
+            return fn
         elif data_type == glm.vec4:
             def fn(loc, value):
                 gl.glUniform4fv(loc, 1, glm.value_ptr(value))
