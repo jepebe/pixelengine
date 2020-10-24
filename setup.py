@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pxng",
-    version="0.0.8",
+    version="0.0.9",
     author="Jean-Paul Balabanian",
     author_email="jepebe@prador.net",
     description="A library for fiddling with pixels",
@@ -25,6 +25,7 @@ setuptools.setup(
         'freetype-py>=2.2.0',
         'numpy>=1.19.0',
         'imageio>=2.9.0',
+        'pyglm>=1.99.0',
     ],
     extras_require={
         ':python_version < "3.7"': [
