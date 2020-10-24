@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pxng",
-    version="0.0.9",
+    version="0.0.10",
     author="Jean-Paul Balabanian",
     author_email="jepebe@prador.net",
     description="A library for fiddling with pixels",
@@ -32,6 +32,10 @@ setuptools.setup(
             'dataclasses',
         ],
     },
-    package_data={'pxng': ['resources/fonts/C64_Pro_Mono-STYLE.ttf']},
+    package_data={'pxng': [
+        'resources/fonts/C64_Pro_Mono-STYLE.ttf',
+        'resources/shaders/*',
+    ]
+    },
     python_requires='>=3.6',
 )
