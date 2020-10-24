@@ -8,7 +8,7 @@ def update(window: pxng.Window):
 
     paused = window.context['paused']
 
-    window.draw_grid(size=5, tint=(0.125, 0.125, 0.125), factor=1)
+    window.draw_grid(size=5, tint=(0.125, 0.125, 0.125), gap_size=1, dash_size=1)
     window.draw_grid(size=20, tint=DARK_GREY)
 
     window.draw_text(5, 5, "Animated Sprites", tint=LIGHT_GREEN)

@@ -56,7 +56,7 @@ class AnimatedSprite:
         if item['current_frame'] >= item['frame_count']:
             item['current_frame'] = 0
 
-    def draw(self):
+    def draw(self, spaces: pxng.Spaces):
         animation = self._current_animation
         current_frame = animation['current_frame']
         x, y = animation['frames'][current_frame]
@@ -64,6 +64,6 @@ class AnimatedSprite:
         w = self._sw
         h = self._sh
 
-        self._sprite.draw_partial(x * w, y * h, w, h)
+        self._sprite.draw_partial(spaces, x * w, y * h, w, h)
 
 

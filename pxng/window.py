@@ -1,12 +1,17 @@
 import time
-from pathlib import Path
 
 import glfw
+import glm
+from OpenGL.GL import GL_TRUE, glGetString, GL_VERSION, glViewport, glClearColor, \
+    glClear, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, glEnable, glBlendFunc, \
+    GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+
 import pxng
 import pxng.keys
 import pxng.mouse
+from pxng.grid import Grid
 from pxng.colors import WHITE
-from pxng.opengl import *
+from pxng.quad import Quad
 
 
 class Window:
@@ -57,6 +62,12 @@ class Window:
             resizable = glfw.TRUE if kwargs['resizable'] else glfw.FALSE
         glfw.window_hint(glfw.RESIZABLE, resizable)
 
+        # switch to newer OpenGL version...
+        glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
+        glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
+        glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)  # mac only
+        glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+
         hdpi = glfw.FALSE
         if 'hdpi' in kwargs:
             hdpi = glfw.TRUE if kwargs['hdpi'] else glfw.FALSE
@@ -85,22 +96,28 @@ class Window:
         glfw.make_context_current(self._window)
         glfw.swap_interval(1 if vsync else 0)
 
+        gl_version = glGetString(GL_VERSION).decode('utf-8')
+        print(f'OpenGL Version string: {gl_version}')
+
+        self._spaces = pxng.Spaces(self.width, self.height)
+        self._spaces.projection.m = glm.ortho(0, width, height, 0, -1, 1)
+        self._spaces.view.scale((self.x_scale, self.y_scale, 1))
+
         self._text_renderer = pxng.TextRenderer(self.create_default_font())
         self._elapsed_time = 0
         self._current_tint = WHITE
         self._key_poller = pxng.keys.KeyPoller()
         self._mouse_poller = pxng.mouse.Mouse(self._window)
 
+        self._quad = Quad()
+        self._grid = Grid(self.width, self.height)
+
     def create_default_font(self) -> pxng.Font:
-        font_path = Path(__file__).parent / 'resources/fonts/C64_Pro_Mono-STYLE.ttf'
-        return pxng.Font(str(font_path), 8)
+        font_path = pxng.resource('fonts/C64_Pro_Mono-STYLE.ttf')
+        return pxng.Font(font_path, 8)
 
     def start_event_loop(self):
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glOrtho(0, self.width, self.height, 0, -1, 1)
         glViewport(0, 0, self.width, self.height)
-        glMatrixMode(GL_MODELVIEW)
         self._loop()
 
     def key_state(self, key) -> pxng.keys.KeyState:
@@ -138,24 +155,31 @@ class Window:
             self._key_poller.poll_keys(self._window)
             self._mouse_poller._poll_mouse(self._window)
 
-            glLoadIdentity()
-            glScalef(self.x_scale, self.y_scale, 1)
+            self._spaces.push()
+            self._spaces.tint = WHITE
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
             glClearColor(*self._color)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
             now = time.time()
             self._elapsed_time = (now - elapsed_now)
             elapsed_now = now
+
             # draw call
             if self._handler is not None:
                 self._handler(self)
+
+            # render last batch of rects (if any)
+            self._quad.draw_batch_if_started(self._spaces)
 
             # Swap front and back buffers
             glfw.swap_buffers(self._window)
 
             # Poll for and process events
             glfw.poll_events()
+
             frame_count += 1
             fps_time_delta = (time.time() - fps_now)
             self.fps = frame_count / fps_time_delta
@@ -174,78 +198,43 @@ class Window:
     def set_update_handler(self, handler):
         self._handler = handler
 
-    @property
-    def tint(self):
-        """
-        Returns the current default tint.
-
-        Returns
-        -------
-        tuple of float
-        """
-        return self._current_tint
-
-    @tint.setter
-    def tint(self, color):
-        """
-        Set the default tint for subsequent drawing calls. Color should be RGB or RGBA.
-
-        Parameters
-        ----------
-        color : tuple of float
-        """
-        self._current_tint = color
-
     def draw_sprite(self, x, y, sprite, scale=1.0, tint=None):
-        self._set_color(tint)
-        glPushMatrix()
-        glTranslatef(x, y, 0)
-        glScalef(scale, scale, 1)
-        sprite.draw()
-        glPopMatrix()
+        self._quad.draw_batch_if_started(self._spaces)
+        self._spaces.tint = tint
+        self._spaces.model.push()
+        self._spaces.model.translate((x, y, 0))
+        self._spaces.model.scale((scale, scale, 1))
+        sprite.draw(self._spaces)
+        self._spaces.model.pop()
 
     def draw_text(self, x, y, text, scale=1.0, tint=None, angle=0):
-        self._set_color(tint)
-        self._text_renderer.draw_string(x, y, text, scale, angle)
+        self._quad.draw_batch_if_started(self._spaces)
+        self._spaces.tint = tint
+        self._text_renderer.draw_string(self._spaces, x, y, text, scale, angle)
 
     def draw_partial_sprite(self, x, y, sprite, sx, sy, sw, sh, scale=1.0, tint=None):
-        self._set_color(tint)
-        glPushMatrix()
-        glTranslatef(x, y, 0)
-        glScalef(scale, scale, 1)
-        sprite.draw_partial(sx, sy, sw, sh)
-        glPopMatrix()
+        self._quad.draw_batch_if_started(self._spaces)
+        self._spaces.tint = tint
+        self._spaces.model.push()
+        self._spaces.model.translate((x, y, 0))
+        self._spaces.model.scale((scale, scale, 1))
+        sprite.draw_partial(self._spaces, sx, sy, sw, sh)
+        self._spaces.model.pop()
 
-    def draw_grid(self, size=10, tint=None, factor=4, pattern=0xAAAA):
-        self._set_color(tint)
-        glLineStipple(factor, pattern)
-        glEnable(GL_LINE_STIPPLE)
-        x = size
-        y = size
-        glBegin(GL_LINES)
-        while x < self.width:
-            glVertex(x, 0)
-            glVertex(x, self.height)
-            x += size
-        while y < self.height:
-            glVertex(0, y)
-            glVertex(self.width, y)
-            y += size
-        glEnd()
+    def draw_grid(self, size=10, tint=None, dash_size=4, gap_size=4):
+        self._quad.draw_batch_if_started(self._spaces)
+        self._spaces.tint = tint
+        self._grid.draw(self._spaces, size, dash_size, gap_size)
 
     def fill_rect(self, x, y, w, h, tint=None):
-        glPushMatrix()
-        self._set_color(tint)
-        glTranslatef(x, y, 0)
-        glBegin(GL_QUADS)
-        glVertex(0, h)
-        glVertex(0, 0)
-        glVertex(w, 0)
-        glVertex(w, h)
-        glEnd()
-        glPopMatrix()
+        self._quad.check_started()
+        self._spaces.tint = tint
+        self._quad.draw(self._spaces, x, y, w, h)
 
-    def _set_color(self, tint):
-        if tint is None:
-            tint = self._current_tint
-        glColor(*tint)
+    @property
+    def tint(self):
+        return self._spaces.default_tint
+
+    @tint.setter
+    def tint(self, tint):
+        self._spaces.default_tint = tint
