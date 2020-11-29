@@ -136,6 +136,8 @@ class ShaderProgram:
             return gl.glUniform1i
         elif data_type == glm.uvec1:
             return gl.glUniform1ui
+        elif data_type == glm.bvec1:
+            return gl.glUniform1ui
         else:
             raise UserWarning(f'Unknown data type: {data_type}')
 

@@ -9,7 +9,7 @@ from pxng import resource
 from OpenGL.GL import GL_TRIANGLES, GL_RGBA, GL_RGB, glGenTextures, \
     GL_TEXTURE_RECTANGLE, glBindTexture, glTexParameteri, GL_TEXTURE_MAG_FILTER, \
     GL_NEAREST, GL_TEXTURE_MIN_FILTER, glTexImage2D, GL_UNSIGNED_BYTE, glTexSubImage2D, \
-    GL_BLEND, glDisable, GL_RED
+    GL_BLEND, glDisable, GL_RED, glPixelStorei, GL_UNPACK_ALIGNMENT, glGetInteger
 
 
 class SpriteRectangle:
@@ -88,6 +88,15 @@ class Sprite:
         self._data[y, x] = color
         self._dirty = True
 
+    def _set_unpack_alignment(self):
+        self._unpack_alignment = glGetInteger(GL_UNPACK_ALIGNMENT)
+        if self._width % 2 == 1 or self._width % 4 == 2:
+            # Odd sized texture
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+
+    def _reset_unpack_alignment(self):
+        glPixelStorei(GL_UNPACK_ALIGNMENT, self._unpack_alignment)
+
     def _create(self):
         self._texid = glGenTextures(1)
         glBindTexture(GL_TEXTURE_RECTANGLE, self._texid)
@@ -99,7 +108,10 @@ class Sprite:
         w = self._width
         h = self._height
         fmt = self._format
+
+        self._set_unpack_alignment()
         glTexImage2D(GL_TEXTURE_RECTANGLE, 0, fmt, w, h, 0, fmt, GL_UNSIGNED_BYTE, d)
+        self._reset_unpack_alignment()
 
         self._rect = SpriteRectangle()
         self._created = True
@@ -111,7 +123,11 @@ class Sprite:
         w = self._width
         h = self._height
         fmt = self._format
+
+        self._set_unpack_alignment()
         glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, 0, w, h, fmt, GL_UNSIGNED_BYTE, d)
+        self._reset_unpack_alignment()
+
         self._updated = True
 
     def update(self):
