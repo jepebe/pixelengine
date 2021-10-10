@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "pxng"
+version = "0.0.14"
+description = "A library for fiddling with pixels"
+authors = ["Jean-Paul Balabanian <jepebe@prador.net>"]
+license = "BSD-2-Clause"
+readme = "README.md"
+repository = "https://github.com/jepebe/pixelengine"
+classifiers = [
+     "Programming Language :: Python :: 3",
+     "License :: OSI Approved :: BSD License",
+     "Operating System :: OS Independent",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7,<3.10"
+glfw = "^2.3.0"
+PyOpenGL = "^3.1.5"
+freetype-py = "^2.2.0"
+imageio = "^2.9.0"
+PyGLM = "^2.5"
+numpy = "^1.19"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
