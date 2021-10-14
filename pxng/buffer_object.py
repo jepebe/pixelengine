@@ -9,7 +9,7 @@ class BufferObject:
     def __init__(self, data_type, array_type=GL_ARRAY_BUFFER, max_size=10000):
         self._data_type = data_type
         self._array_type = array_type
-        self._arr = glm.array(data_type()) * max_size
+        self._arr = glm.array.zeros(max_size, data_type)
         self._index = 0
         self._vbo = glGenBuffers(1)
         self._changed = True
